@@ -19,5 +19,5 @@ Equipo: EQ-06
 
 ## Seguimiento
 
-- Trello: [Enlace]((https://trello.com/b/0ssnu0On/tecconnect))
+- Trello: [Enlace](https://trello.com/b/0ssnu0On/tecconnect)
 - Classroom: entrega oficial
