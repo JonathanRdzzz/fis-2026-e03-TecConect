@@ -4,10 +4,10 @@ Equipo: EQ-06
 
 ## Integrantes
 
-- Jonathan Alfredo Rodríguez Ramírez - Coordinación y Gestión
-- Gilberto Juárez Hernández - Análisis y Requerimientos
-- Alfonso Herrera Díaz - Desarrollo e Implementación
-- Jorge Luis Monsivais Rodríguez - Calidad y Documentación
+- Jonathan Alfredo Rodríguez Ramírez - Análisis
+- Eric Martine Rocha - Desarrollo
+- Yahir Alejandro Vázquez Maciel - Coordinación
+- Alexis Rubio Galván - Documentación y Calidad
 
 ## Organización
 
@@ -19,5 +19,5 @@ Equipo: EQ-06
 
 ## Seguimiento
 
-- Trello: [Enlace](https://trello.com/invite/b/6ab3e1325beb1b3afb8c7500/ATTI7ca59a90c6ee6d284b95912ce7dd381579C538DB/tecconect)
+- Trello: [Enlace]([https://trello.com/invite/b/6ab3e1325beb1b3afb8c7500/ATTI7ca59a90c6ee6d284b95912ce7dd381579C538DB/tecconect](https://trello.com/b/0ssnu0On/tecconnect))
 - Classroom: entrega oficial
