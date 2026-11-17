@@ -5,7 +5,7 @@ Equipo: EQ-06
 ## Integrantes
 
 - Jonathan Alfredo Rodríguez Ramírez - Análisis
-- Eric Martine Rocha - Desarrollo
+- Erick Martinez Rocha - Desarrollo
 - Yahir Alejandro Vázquez Maciel - Coordinación
 - Alexis Rubio Galván - Documentación y Calidad
 
