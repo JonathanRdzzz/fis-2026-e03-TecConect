@@ -1,10 +1,5 @@
-/* TecConect · Prototipo U3 · Lógica del recorrido
-   Vistas: 01 Inicio (RF-06) · 02 Acción (RF-06, RF-04) · 03A Éxito (RF-04)
-           03B Error (RF-03) · 04 Devolución (RF-05) · 04R Resultado (RF-05)
-   Todos los datos son de ejemplo y viven solo en memoria. */
 'use strict';
 
-/* ---------- Datos de ejemplo ---------- */
 const ESTUDIANTES = {
   '22010001': { nombre: 'Estudiante de ejemplo', carrera: 'Ing. en Sistemas Computacionales', autorizado: true },
   '21010500': { nombre: 'Estudiante no autorizado (ejemplo)', carrera: 'Ing. Industrial', autorizado: false },
@@ -41,23 +36,21 @@ const VISTAS = {
   '04R': { nombre: 'Resultado', req: 'RF-05 · Historial: propuesta', paso: 'Préstamo cerrado y equipo disponible. El historial no tiene RF propio.' }
 };
 
-/* ---------- Estado ---------- */
 const state = {
   vista: '01',
   matricula: '',
   noEncontrada: false,
-  estudiante: null,      // matrícula del estudiante encontrado
-  equipo: null,          // código del equipo seleccionado
+  matriculaEstudiante: null,
+  codigoEquipo: null,
   condicion: '',
   filtro: '',
-  errores: null,         // { lista: [], campos: {} } en 03B
-  ultimo: null,          // préstamo recién creado (03A)
+  errores: null,
+  prestamoRegistrado: null,
   devolucion: { id: null, cond: 'completo', obs: '', error: false },
-  cerrado: null,         // préstamo devuelto (04R)
+  prestamoDevuelto: null,
   anotaciones: leerPreferencia()
 };
 
-/* ---------- Utilidades ---------- */
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const icono = (n, cls = '') => `<svg class="ic ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
@@ -70,7 +63,12 @@ function leerPreferencia() {
   try { return localStorage.getItem('tecconect-anotaciones') !== 'no'; } catch { return true; }
 }
 function guardarPreferencia(v) {
-  try { localStorage.setItem('tecconect-anotaciones', v ? 'si' : 'no'); } catch { /* sin almacenamiento */ }
+  try {
+    localStorage.setItem('tecconect-anotaciones', v ? 'si' : 'no');
+    return true;
+  } catch {
+    return false;
+  }
 }
 function anunciar(texto) {
   const a = $('#aviso'); a.textContent = ''; setTimeout(() => { a.textContent = texto; }, 30);
@@ -86,7 +84,6 @@ const ESTADOS = {
 };
 const chip = (estado) => `<span class="chip ${ESTADOS[estado][1]}">${ESTADOS[estado][0]}</span>`;
 
-/* ---------- Piezas de interfaz ---------- */
 function encabezado(miga, titulo, sub) {
   return `<header class="page-head">
     <p class="crumb">${miga}</p>
@@ -141,9 +138,8 @@ function alerta(tipo, titulo, cuerpo) {
   </section>`;
 }
 
-/* ---------- Vistas ---------- */
 function vista01() {
-  const e = state.estudiante;
+  const e = state.matriculaEstudiante;
   const no = state.noEncontrada;
   return `${encabezado('Préstamos / Nuevo préstamo', 'Nuevo préstamo', 'Identifica al estudiante por su matrícula. Ya no se retiene la credencial física.')}
   ${pasos(1)}
@@ -188,7 +184,7 @@ function vista02() {
     const off = q.estado !== 'disponible';
     const oculto = filtro && !(`${q.nombre} ${q.codigo}`.toLowerCase().includes(filtro));
     return `<label class="equipo ${off ? 'is-off' : ''}" ${oculto ? 'hidden' : ''} data-texto="${esc((q.nombre + ' ' + q.codigo).toLowerCase())}">
-      <input class="sr-only" type="radio" name="equipo" value="${q.codigo}" ${state.equipo === q.codigo ? 'checked' : ''} ${off ? 'disabled' : ''}>
+      <input class="sr-only" type="radio" name="equipo" value="${q.codigo}" ${state.codigoEquipo === q.codigo ? 'checked' : ''} ${off ? 'disabled' : ''}>
       <span class="tile">${icono(q.tipo)}</span>
       <span class="equipo-check" aria-hidden="true">${icono('check', 'ic-sm')}</span>
       <span class="equipo-name">${esc(q.nombre)}</span>
@@ -196,7 +192,7 @@ function vista02() {
       ${chip(q.estado)}
     </label>`;
   }).join('');
-  const sel = state.equipo ? equipoPor(state.equipo) : null;
+  const sel = state.codigoEquipo ? equipoPor(state.codigoEquipo) : null;
   const cuerpoError = err ? `<ul>${err.lista.map((m) => `<li>${m}</li>`).join('')}</ul><p>Corrige el dato o cancela la operación.</p>` : '';
 
   return `${encabezado('Préstamos / Nuevo préstamo', 'Nuevo préstamo')}
@@ -206,7 +202,7 @@ function vista02() {
       ${err ? alerta('error', 'No se puede confirmar el préstamo', cuerpoError) : ''}
       <section class="card" aria-labelledby="t-est">
         <h2 class="card-title" id="t-est"><span class="num">01</span>Estudiante</h2>
-        ${persona(state.estudiante)}
+        ${persona(state.matriculaEstudiante)}
       </section>
       <section class="card" aria-labelledby="t-eq">
         <h2 class="card-title" id="t-eq"><span class="num">02</span>Selecciona el equipo</h2>
@@ -239,7 +235,7 @@ function vista02() {
       </div>
     </form>
     ${resumen('Vale de resguardo', [
-      ['Estudiante', `${esc(ESTUDIANTES[state.estudiante].nombre)} · <span class="mono">${state.estudiante}</span>`],
+      ['Estudiante', `${esc(ESTUDIANTES[state.matriculaEstudiante].nombre)} · <span class="mono">${state.matriculaEstudiante}</span>`],
       ['Equipo', sel ? `${esc(sel.nombre)} · <span class="mono">${sel.codigo}</span>` : 'Pendiente', sel ? '' : 'is-pending'],
       ['Condición inicial', state.condicion.trim() ? esc(state.condicion) : (campos.condicion ? 'Falta capturarla' : 'Pendiente'),
         'js-condicion ' + (state.condicion.trim() ? '' : campos.condicion ? 'is-missing' : 'is-pending')]
@@ -248,7 +244,7 @@ function vista02() {
 }
 
 function vista03A() {
-  const p = state.ultimo;
+  const p = state.prestamoRegistrado;
   const e = ESTUDIANTES[p.matricula];
   const q = equipoPor(p.codigo);
   return `${encabezado('Préstamos / Nuevo préstamo', 'Nuevo préstamo')}
@@ -339,7 +335,7 @@ function vista04() {
 }
 
 function vista04R() {
-  const p = state.cerrado;
+  const p = state.prestamoDevuelto;
   const q = equipoPor(p.codigo);
   const ok = p.estado === 'cerrado';
   const hist = historial.filter((h) => h.codigo === p.codigo).sort((a, b) => b.fecha - a.fecha);
@@ -375,7 +371,6 @@ function vista04R() {
 
 const RENDER = { '01': vista01, '02': vista02, '03A': vista03A, '03B': vista02, '04': vista04, '04R': vista04R };
 
-/* ---------- Anotaciones ---------- */
 function anotacion() {
   const el = $('#anotacion');
   if (!state.anotaciones) {
@@ -400,7 +395,6 @@ function anotacion() {
     </ul></details>`;
 }
 
-/* ---------- Render ---------- */
 function render(enfocar = true) {
   const main = $('#contenido');
   main.innerHTML = `<div class="view">${RENDER[state.vista]()}</div>`;
@@ -416,39 +410,38 @@ function render(enfocar = true) {
 
 function ir(vista) { state.vista = vista; render(); }
 
-/* ---------- Acciones ---------- */
 function buscar(valor) {
   state.matricula = valor.trim();
   if (ESTUDIANTES[state.matricula]) {
-    state.estudiante = state.matricula; state.noEncontrada = false;
+    state.matriculaEstudiante = state.matricula; state.noEncontrada = false;
     anunciar('Estudiante encontrado.');
   } else {
-    state.estudiante = null; state.noEncontrada = true;
+    state.matriculaEstudiante = null; state.noEncontrada = true;
   }
   render(false);
-  if (state.estudiante) $('[data-act="continuar"]').focus(); else $('#matricula').focus();
+  if (state.matriculaEstudiante) $('[data-act="continuar"]').focus(); else $('#matricula').focus();
 }
 
 function confirmar() {
   const lista = []; const campos = {};
-  const e = ESTUDIANTES[state.estudiante];
-  const q = state.equipo ? equipoPor(state.equipo) : null;
+  const e = ESTUDIANTES[state.matriculaEstudiante];
+  const q = state.codigoEquipo ? equipoPor(state.codigoEquipo) : null;
   if (!e.autorizado) lista.push('El estudiante no está autorizado para solicitar equipo.');
   if (!q) { lista.push('No se seleccionó un equipo.'); campos.equipo = 'Selecciona un equipo disponible.'; }
   else if (q.estado !== 'disponible') { lista.push('El equipo no está disponible.'); campos.equipo = 'El equipo seleccionado no está disponible.'; }
   if (!state.condicion.trim()) { lista.push('Falta un dato obligatorio: la condición inicial del equipo.'); campos.condicion = true; }
 
-  if (lista.length) {                       // 03B · RF-03
+  if (lista.length) {
     state.errores = { lista, campos };
     ir('03B');
     return;
   }
-  const p = { id: siguienteId++, matricula: state.estudiante, codigo: q.codigo, inicio: new Date(), condIni: state.condicion.trim(), estado: 'activo' };
+  const p = { id: siguienteId++, matricula: state.matriculaEstudiante, codigo: q.codigo, inicio: new Date(), condIni: state.condicion.trim(), estado: 'activo' };
   prestamos.push(p);
   q.estado = 'prestado';
-  state.ultimo = p;
+  state.prestamoRegistrado = p;
   limpiarBorrador();
-  ir('03A');                                 // 03A · RF-04
+  ir('03A');
 }
 
 function registrarDevolucion() {
@@ -464,13 +457,13 @@ function registrarDevolucion() {
     p.estado = 'incidencia'; q.estado = 'revision';
     historial.push({ codigo: q.codigo, fecha: p.fin, matricula: p.matricula, cond: 'Con daño o incompleto · incidencia por registrar' });
   }
-  state.cerrado = p;
+  state.prestamoDevuelto = p;
   state.devolucion = { id: null, cond: 'completo', obs: '', error: false };
-  ir('04R');                                 // 04 Resultado · RF-05
+  ir('04R');
 }
 
 function limpiarBorrador() {
-  Object.assign(state, { matricula: '', noEncontrada: false, estudiante: null, equipo: null, condicion: '', filtro: '', errores: null });
+  Object.assign(state, { matricula: '', noEncontrada: false, matriculaEstudiante: null, codigoEquipo: null, condicion: '', filtro: '', errores: null });
 }
 
 function aplicarFiltro() {
@@ -483,28 +476,26 @@ function aplicarFiltro() {
   $('#sin-resultados').hidden = visibles > 0;
 }
 
-/* Saltos de la barra de anotaciones: preparan datos para mostrar cada vista */
-function demo(vista) {
+function mostrarVistaDeEjemplo(vista) {
   const libre = () => (equipoPor('PRY-03').estado === 'disponible' ? 'PRY-03' : equipos.find((q) => q.estado === 'disponible')?.codigo);
   if (vista === '01') { limpiarBorrador(); return ir('01'); }
-  if (vista === '02') { limpiarBorrador(); state.estudiante = '22010001'; state.matricula = '22010001'; return ir('02'); }
-  if (vista === '03B') { limpiarBorrador(); state.estudiante = '22010001'; state.equipo = libre(); return confirmar(); }
+  if (vista === '02') { limpiarBorrador(); state.matriculaEstudiante = '22010001'; state.matricula = '22010001'; return ir('02'); }
+  if (vista === '03B') { limpiarBorrador(); state.matriculaEstudiante = '22010001'; state.codigoEquipo = libre(); return confirmar(); }
   if (vista === '03A') {
-    limpiarBorrador(); state.estudiante = '22010001'; state.equipo = libre();
+    limpiarBorrador(); state.matriculaEstudiante = '22010001'; state.codigoEquipo = libre();
     state.condicion = 'Sin daños, con cable HDMI y control remoto.';
-    if (!state.equipo) { equipoPor('PRY-03').estado = 'disponible'; state.equipo = 'PRY-03'; }
+    if (!state.codigoEquipo) { equipoPor('PRY-03').estado = 'disponible'; state.codigoEquipo = 'PRY-03'; }
     return confirmar();
   }
   if (vista === '04') return ir('04');
   if (vista === '04R') {
     let p = prestamos.find((x) => x.estado === 'activo');
-    if (!p) { demo('03A'); p = state.ultimo; }
+    if (!p) { mostrarVistaDeEjemplo('03A'); p = state.prestamoRegistrado; }
     state.devolucion = { id: p.id, cond: 'completo', obs: '', error: false };
     return registrarDevolucion();
   }
 }
 
-/* ---------- Eventos (delegados) ---------- */
 document.addEventListener('submit', (ev) => {
   ev.preventDefault();
   if (ev.target.id === 'f-buscar') buscar($('#matricula').value);
@@ -547,14 +538,14 @@ document.addEventListener('input', (ev) => {
 document.addEventListener('change', (ev) => {
   const t = ev.target;
   if (t.name === 'equipo') {
-    state.equipo = t.value;
+    state.codigoEquipo = t.value;
     if (state.errores) delete state.errores.campos.equipo;
     render(false);
     document.querySelector(`input[name="equipo"][value="${t.value}"]`)?.focus();
   }
   if (t.name === 'prestamo') { state.devolucion.id = Number(t.value); state.devolucion.error = false; render(false); $(`input[name="prestamo"][value="${t.value}"]`)?.focus(); }
   if (t.name === 'cond') state.devolucion.cond = t.value;
-  if (t.id === 'ir-vista') demo(t.value);
+  if (t.id === 'ir-vista') mostrarVistaDeEjemplo(t.value);
 });
 
 render(false);
