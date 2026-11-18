@@ -48,8 +48,6 @@ La documentación está organizada en la carpeta [`docs/`](./docs). Incluye entr
 
 **Prototipo de la Unidad 3:** [consultar archivos y capturas en la rama de documentación](https://github.com/JonathanRdzzz/fis-2026-e03-TecConect/tree/docs/u3-erick-martinez/docs/U3/prototipo).
 
-> Algunas evidencias pueden estar en ramas de trabajo y no aparecer todavía en `main`. Los enlaces se mantienen explícitos para evitar confundir archivos de distintas versiones.
-
 ## Recorrido del prototipo
 
 1. **Inicio:** identificación del estudiante por matrícula.
