@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TecConect · Préstamo de equipo · Prototipo U3</title>
+  <meta name="description" content="Prototipo navegable del recorrido de préstamo y devolución de equipo didáctico (TecConect, EQ06, U3).">
+  <link rel="icon" href="assets/escudo-tec-san-pedro.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-alerta" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/><path d="M12 16.5h.01"/></symbol>
+      <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1"/><path d="M2 19h20"/></symbol>
+      <symbol id="i-proyector" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="16" cy="12" r="2.5"/><path d="M6 12h4"/><path d="M6 17v2"/><path d="M18 17v2"/></symbol>
+      <symbol id="i-bocina" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M12 6.5h.01"/></symbol>
+      <symbol id="i-camara" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M8 7l2-3h4l2 3"/><circle cx="12" cy="13.5" r="3.5"/></symbol>
+      <symbol id="i-prestamo" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 13 2 2 4-4"/></symbol>
+      <symbol id="i-devolucion" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+      <symbol id="i-historial" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="i-capas" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+      <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <div class="app">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <img class="sidebar-logo" src="assets/logo-tec-san-pedro.png" alt="Tec San Pedro" width="176" height="128">
+      <nav class="nav">
+        <p class="nav-label">Operación</p>
+        <button class="nav-item" type="button" data-nav="prestamos"><svg class="ic" aria-hidden="true"><use href="#i-prestamo"/></svg>Préstamos</button>
+        <button class="nav-item" type="button" data-nav="devoluciones"><svg class="ic" aria-hidden="true"><use href="#i-devolucion"/></svg>Devoluciones</button>
+        <span class="nav-item is-proposal" title="Propuesta sin requisito propio"><svg class="ic" aria-hidden="true"><use href="#i-historial"/></svg>Historial <span class="tag-gold">Propuesta</span></span>
+      </nav>
+      <div class="user">
+        <strong>Personal de resguardo</strong><small>Resguardo de equipo</small>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <img src="assets/escudo-tec-san-pedro.png" alt="" width="28" height="31">
+      <span class="topbar-brand"><strong>TecConect</strong><small>Préstamo de equipo</small></span>
+      <span class="topbar-role">Resguardo</span>
+    </header>
+
+    <main id="contenido" class="main" tabindex="-1"></main>
+
+    <nav class="tabbar" aria-label="Navegación principal">
+      <button type="button" data-nav="prestamos"><svg class="ic" aria-hidden="true"><use href="#i-prestamo"/></svg>Préstamos</button>
+      <button type="button" data-nav="devoluciones"><svg class="ic" aria-hidden="true"><use href="#i-devolucion"/></svg>Devoluciones</button>
+      <span class="is-proposal"><svg class="ic" aria-hidden="true"><use href="#i-historial"/></svg>Historial</span>
+    </nav>
+  </div>
+
+  <aside id="anotacion" class="anot" aria-label="Anotaciones del prototipo"></aside>
+
+  <div id="aviso" class="sr-only" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
